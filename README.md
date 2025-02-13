@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-XTA AI Go SDK 是一个基于 Go 语言开发的库，用于与 Gitee AI 服务进行交互。该库支持多种 AI 模型，提供流式和非流式消息处理功能，适用于开发智能对话应用。
+XTA AI Go SDK 是一个基于 Go 语言开发的库，用于与 AI 服务进行交互。该库支持多种 AI 模型，提供流式和非流式消息处理功能，适用于开发智能对话应用。
 
 ## 安装与配置
 
@@ -16,7 +16,7 @@ go get github.com/energye/xta
 
 ### 配置
 
-在使用 SDK 前，请确保设置 Gitee AI API 密钥：
+在使用 SDK 前，请确保设置 AI API 密钥：
 
 ```go
 os.Setenv(chat.ENV_AI_API_KEY, "your_api_key")
