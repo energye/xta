@@ -55,6 +55,18 @@ const (
 	GITEE_AI_DEEPSEEK_R1_DISTILL_QWEN_14B  GiteeAIModelNameEnum = "DeepSeek-R1-Distill-Qwen-14B"
 )
 
+// IGiteeAI gitee ai 模型接口
+type IGiteeAI interface {
+	IAI
+	SetModel(name GiteeAIModelNameEnum)       // 设置当前模型
+	Model() GiteeAIModelNameEnum              // 返回当前模型
+	ChatRole(content string, role Role)       // 带有角色的聊天, 发送消息并以普通方式全量返回
+	ChatStreamRole(content string, role Role) // 带有角色的聊天, 发送消息并以流方式返回
+	Chat(content string)                      // 发送消息并以普通方式全量返回
+	ChatStream(content string)                // 发送消息并以流方式返回
+}
+
+// Value 返回模型枚举值
 func (m GiteeAIModelNameEnum) Value() string {
 	return string(m)
 }
@@ -65,12 +77,14 @@ var DefaultGiteeAIMetaData = MetaData{
 	Messages: make(Messages, 0),
 }
 
+// DefaultGiteeAIOptions 默认选项配置
 var DefaultGiteeAIOptions = Options{
 	BaseURL: GITEE_AI,
 	API:     GITEE_AI_API,
 	APIKey:  os.Getenv(ENV_AI_API_KEY),
 }
 
+// GiteeAI Gitee AI 实现
 type GiteeAI struct {
 	AIBase
 	options       Options  // AI 选项
@@ -79,6 +93,7 @@ type GiteeAI struct {
 	header        http.Header
 }
 
+// NewGiteeAI 创建一个 Gitee AI
 func NewGiteeAI(options Options, isSupportTool bool) IGiteeAI {
 	ai := &GiteeAI{
 		options:       options,

@@ -12,7 +12,10 @@ package chat
 
 import "bytes"
 
+// TOnReceive 接收成功消息事件
 type TOnReceive func(message *TResponse)
+
+// TOnFail 接收失败消息事件
 type TOnFail func(err *TResponseError)
 
 type Choices []TChoice

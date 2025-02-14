@@ -22,6 +22,7 @@ import (
 	"strconv"
 )
 
+// HttpPost 发送 Http Post 请求
 func HttpPost(ai IAI) {
 	url := ai.API()
 	metaData := ai.MetaData()

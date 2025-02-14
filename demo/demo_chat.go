@@ -12,7 +12,7 @@ func main() {
 	options.APIKey = os.Getenv(chat.ENV_AI_API_KEY)
 	ai := chat.NewGiteeAI(options, false)
 	chatBox := func() {
-		fmt.Println(">")
+		fmt.Println("\n>")
 		var input string
 		fmt.Scan(&input)
 		if input != "" {

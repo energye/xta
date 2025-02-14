@@ -33,6 +33,7 @@ func main() {
 	ai.SetOnFail(func(message *chat.TResponseError) {
 		fmt.Println("fail:", message.Code, message.Message, message.Type)
 	})
+	// 自定义一些资源
 	sourceCode := tool.LoadSourceFile("E:\\SWT\\gopath\\src\\github.com\\energye\\energy\\cef", true)
 	println("源码:", len(sourceCode))
 	doc := tool.LoadFile("E:\\SWT\\gopath\\src\\github.com\\energye\\energye.github.io\\zh\\course")
