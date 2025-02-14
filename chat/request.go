@@ -14,6 +14,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/energye/xta/tools/httpclient"
 	"io"
 	"io/ioutil"
@@ -57,13 +58,25 @@ func HttpPost(ai IAI) {
 					errorcall(resp.StatusCode, "response_read_body", err)
 					return
 				}
-				terr := &TError{}
-				err = json.Unmarshal(data, terr)
+				merr := make(map[string]any)
+				err = json.Unmarshal(data, &merr)
 				if err != nil {
 					errorcall(resp.StatusCode, "response_unmarshal_json", err)
 					return
 				}
-				ai.OnFail()(&terr.Error)
+				terr := &TResponseError{Other: make(TResponseErrorOther)}
+				for key, value := range merr {
+					if key == "message" {
+						terr.Message = fmt.Sprintf("%v", value)
+					} else if key == "type" {
+						terr.Type = fmt.Sprintf("%v", value)
+					} else if key == "code" {
+						terr.Code = fmt.Sprintf("%v", value)
+					} else {
+						terr.Other[key] = fmt.Sprintf("%v", value)
+					}
+				}
+				ai.OnFail()(terr)
 			}
 			return
 		}
@@ -76,6 +89,9 @@ func HttpPost(ai IAI) {
 				defer tmpBuf.Reset()
 				if tmpBuf.Len() == 0 {
 					return
+				}
+				if Debug {
+					log.Println("[Debug] [XTA] - Message:", tmpBuf.String())
 				}
 				if tmpBuf.Len() > 6 {
 					value := tmpBuf.Bytes() // 去除 "data: "

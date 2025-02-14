@@ -53,7 +53,7 @@ func (m *Messages) Add(message Message) {
 type ResponseFormat map[string]string
 
 func (m *ResponseFormat) Add(name, value string) {
-	if m == nil {
+	if *m == nil {
 		*m = make(map[string]string)
 	}
 	(*m)[name] = value
@@ -63,7 +63,7 @@ type LogitBias map[string]float32
 
 // Add 值范围 -100 ~ 100
 func (m *LogitBias) Add(name string, value float32) {
-	if m == nil {
+	if *m == nil {
 		*m = make(map[string]float32)
 	}
 	if value >= -100 && value <= 100 {
@@ -75,7 +75,7 @@ func (m *LogitBias) Add(name string, value float32) {
 type FuncParameters map[string]FuncParameter
 
 func (m *FuncParameters) Add(name string, type_ FuncParameterType, description string) {
-	if m == nil {
+	if *m == nil {
 		*m = make(map[string]FuncParameter)
 	}
 	(*m)[name] = FuncParameter{Type: type_, Description: description}
@@ -122,16 +122,25 @@ type Message struct {
 }
 
 // Tools 工具列表
-type Tools []Tool
+type Tools []*Tool
 
-func (m *Tools) Add(tool Tool) {
+func (m *Tools) Add(tool *Tool) {
 	*m = append(*m, tool)
 }
 
 // Tool 模型调用的工具
 type Tool struct {
-	Type     string   `json:"type,omitempty"`     // const: function default: function
-	Function Function `json:"function,omitempty"` // 包含函数的详细信息 required
+	Type     string    `json:"type,omitempty"`     // const: function default: function
+	Function *Function `json:"function,omitempty"` // 包含函数的详细信息 required
+}
+
+func NewTool() *Tool {
+	return &Tool{Type: "function"}
+}
+
+func (m *Tool) AddFunc(name, desc string) *Function {
+	m.Function = &Function{Name: name, Description: desc}
+	return m.Function
 }
 
 // Function 模型调用的工具函数

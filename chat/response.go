@@ -70,12 +70,18 @@ type TMessage struct {
 	Content []string
 }
 
-type TError struct {
-	Error TResponseError `json:"error"`
+type TResponseErrorOther map[string]string
+
+func (m *TResponseErrorOther) Get(name string) string {
+	if *m == nil {
+		return ""
+	}
+	return (*m)[name]
 }
 
 type TResponseError struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
-	Type    string `json:"type"`
+	Code    string
+	Message string
+	Type    string
+	Other   TResponseErrorOther
 }
