@@ -10,8 +10,7 @@ import (
 )
 
 func main() {
-
-	chat.Debug = true
+	chat.Debug = false
 	options := chat.DefaultGiteeAIOptions
 	options.APIKey = os.Getenv(chat.ENV_AI_API_KEY)
 	ai := chat.NewGiteeAI(options, false)
@@ -38,7 +37,7 @@ func main() {
 	println("源码:", len(sourceCode))
 	doc := tool.LoadFile("E:\\SWT\\gopath\\src\\github.com\\energye\\energye.github.io\\zh\\course")
 	println("文档:", len(doc))
-	demoCode := tool.LoadSourceFile("E:\\SWT\\gopath\\src\\github.com\\energye\\energy\\examples\\many-browser", false)
+	demoCode := tool.LoadSourceFile("E:\\SWT\\gopath\\src\\github.com\\energye\\energy\\examples\\audio-video", false)
 	println("示例:", len(demoCode))
 
 	contentBuf := bytes.Buffer{}
