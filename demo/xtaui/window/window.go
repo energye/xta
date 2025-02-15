@@ -2,16 +2,15 @@ package window
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"fmt"
 	"github.com/energye/lcl/lcl"
+	"github.com/energye/lcl/rtl"
 	"github.com/energye/lcl/types"
 	"github.com/energye/lcl/types/colors"
 	"github.com/energye/xta/chat"
 	"io/fs"
 	"os"
-	"strings"
 	"time"
 	_ "xta/xtaui/syso"
 )
@@ -33,12 +32,15 @@ type TMainWindow struct {
 	saveFileBuf *bufio.Writer
 
 	fileWindow []*FileWindow
+
+	title string
 }
 
 var MainWindow TMainWindow
 
 func (m *TMainWindow) FormCreate(sender lcl.IObject) {
-	m.SetCaption("ENERGY - XTA Chat UI")
+	m.title = "ENERGY - XTA Chat UI"
+	m.SetCaption(m.title)
 	m.SetPosition(types.PoScreenCenter)
 	m.SetWidth(1024)
 	m.SetHeight(768)
@@ -57,12 +59,52 @@ func (m *TMainWindow) FormCreate(sender lcl.IObject) {
 func (m *TMainWindow) initMainBox() {
 	go m.initXTASDK()
 
+	openURL := lcl.NewLinkLabel(m)
+	openURL.SetParent(m)
+	openURL.SetCaption(`<a href="https://ai.gitee.com/models">Gitee AI API 获取</a>`)
+	openURL.SetAlign(types.AlRight)
+	openURL.SetTop(5)
+	openURL.Font().SetSize(12)
+	openURL.SetOnLinkClick(func(sender lcl.IObject, link string, linktype types.TSysLinkType) {
+		rtl.SysOpen(link)
+	})
+
+	modules := lcl.NewComboBox(m)
+	modules.SetParent(m)
+	modules.SetLeft(150)
+	modules.Items().AddStrings2(chat.GiteeAIModels())
+	modules.SetItemIndex(17)
+	modules.SetHeight(35)
+	modules.SetWidth(300)
+	modules.Font().SetSize(12)
+	modules.SetOnChange(func(sender lcl.IObject) {
+		module := chat.GiteeAIModelNameEnum(modules.Items().Strings(modules.ItemIndex()))
+		m.ai.SetModel(module)
+		m.message.Lines().Add("模型: " + m.ai.Name())
+		m.SetCaption(m.title + " " + m.ai.Name())
+	})
+
+	apiKey := lcl.NewEditButton(m)
+	apiKey.SetParent(m)
+	apiKey.SetLeft(modules.Left() + modules.Width() + 5)
+	apiKey.SetPasswordChar(uint16('*'))
+	apiKey.SetHeight(35)
+	apiKey.SetWidth(200)
+	apiKey.Font().SetSize(12)
+	apiKey.Button().SetCaption("API KEY")
+	//apiKey.Button().SetLeft(100)
+	apiKey.Button().SetWidth(80)
+	apiKey.SetOnClick(func(sender lcl.IObject) {
+		m.ai.Options().APIKey = apiKey.Text()
+	})
+
 	// 消息
 	m.message = lcl.NewMemo(m)
 	m.message.SetParent(m)
+	m.message.SetTop(40)
 	m.message.SetLeft(150)
 	m.message.SetWidth(m.Width() - 150)
-	m.message.SetHeight(m.Height() - 150)
+	m.message.SetHeight(m.Height() - 190)
 	m.message.SetBorderStyle(types.BsNone)
 	m.message.SetReadOnly(true)
 	m.message.SetScrollBars(types.SsAutoBoth)
@@ -70,24 +112,24 @@ func (m *TMainWindow) initMainBox() {
 	m.message.SetAnchors(types.NewSet(types.AkLeft, types.AkTop, types.AkRight, types.AkBottom))
 
 	// 聊天
-	chatLabel := lcl.NewLabel(m)
-	chatLabel.SetParent(m)
-	chatLabel.SetCaption("发送消息")
-	chatLabel.SetTop(m.message.Height() + 40)
-	chatLabel.SetLeft(20)
-	chatLabel.Font().SetSize(18)
-	chatLabel.Font().SetColor(colors.ClGray)
-	chatLabel.SetAnchors(types.NewSet(types.AkLeft, types.AkBottom))
 
 	m.chat = lcl.NewMemo(m)
 	m.chat.SetParent(m)
 	m.chat.SetBorderStyle(types.BsNone)
 	m.chat.SetScrollBars(types.SsAutoBoth)
-	m.chat.SetTop(m.message.Height() + 3)
+	m.chat.SetTop(m.message.Top() + m.message.Height() + 3)
 	m.chat.SetLeft(150)
 	m.chat.SetWidth(m.Width())
 	m.chat.SetHeight(100)
 	m.chat.SetAnchors(types.NewSet(types.AkLeft, types.AkRight, types.AkBottom))
+	chatLabel := lcl.NewLabel(m)
+	chatLabel.SetParent(m)
+	chatLabel.SetCaption("发送消息")
+	chatLabel.SetTop(m.chat.Top() + 40)
+	chatLabel.SetLeft(20)
+	chatLabel.Font().SetSize(18)
+	chatLabel.Font().SetColor(colors.ClGray)
+	chatLabel.SetAnchors(types.NewSet(types.AkLeft, types.AkBottom))
 
 	// 发送消息
 	m.chatBtn = lcl.NewButton(m)
@@ -126,7 +168,7 @@ func (m *TMainWindow) initMainBox() {
 	m.saveChatBtn.SetTop(m.chat.Top() + m.chat.Height() + 3)
 	m.saveChatBtn.SetLeft(m.selFileBtn.Left() + m.selFileBtn.Width() + 3)
 	m.saveChatBtn.SetCaption("保存消息")
-	m.saveChatBtn.SetWidth(150)
+	m.saveChatBtn.SetWidth(100)
 	m.saveChatBtn.SetHeight(40)
 	m.saveChatBtn.Font().SetSize(12)
 	m.saveChatBtn.SetAnchors(types.NewSet(types.AkLeft, types.AkBottom))
@@ -177,13 +219,14 @@ func (m *TMainWindow) initMainBox() {
 	// 窗口显示
 	m.SetOnShow(func(sender lcl.IObject) {
 		m.chat.SetFocus()
+		apiKey.SetText(m.ai.APIKey())
 	})
 
-	clearHistory := lcl.NewButton(m)
-	clearHistory.SetParent(m)
-	clearHistory.SetOnClick(func(sender lcl.IObject) {
-		m.ai.History()
-	})
+	//clearHistory := lcl.NewButton(m)
+	//clearHistory.SetParent(m)
+	//clearHistory.SetOnClick(func(sender lcl.IObject) {
+	//	m.ai.History()
+	//})
 }
 
 // 主窗口左侧创建文件项
@@ -229,64 +272,6 @@ func (m *TMainWindow) resortFileBtns() {
 	}
 }
 
-func (m *TMainWindow) initXTASDK() {
-	options := chat.DefaultGiteeAIOptions
-	options.APIKey = os.Getenv(chat.ENV_AI_API_KEY)
-	m.ai = chat.NewGiteeAI(options, false)
-
-	isFirstRec := false
-	m.ai.SetOnReceive(func(message *chat.TResponse) {
-		if !isFirstRec {
-			m.message.Lines().Add("回复: " + nowDatetime())
-			isFirstRec = true
-		}
-		// 在异步UI线程里操作
-		lcl.RunOnMainThreadAsync(func(id uint32) {
-			if message != nil {
-				if message.Error != "" {
-					s := fmt.Sprintf("错误: %v %v", message.Error, message.ErrorType)
-					m.message.Lines().Add(s)
-					if m.saveFileBuf != nil {
-						m.saveFileBuf.WriteString(s)
-						m.saveFileBuf.Flush()
-					}
-				}
-				choices := message.Choices
-				for _, choice := range choices {
-					if strings.Contains(choice.Delta.Content, "\n") {
-						m.message.Lines().Add(choice.Delta.Content)
-					} else {
-						m.message.SetSelStart(int32(len(m.message.Lines().Text())))
-						m.message.SetSelText(choice.Delta.Content)
-					}
-					if m.saveFileBuf != nil {
-						m.saveFileBuf.WriteString(choice.Delta.Content)
-						m.saveFileBuf.Flush()
-					}
-				}
-			} else {
-				fmt.Println("结束")
-				m.message.Lines().Add("")
-				m.chatBtn.SetEnabled(true)
-				isFirstRec = false
-			}
-		})
-	})
-	m.ai.SetOnFail(func(message *chat.TResponseError) {
-		lcl.RunOnMainThreadSync(func() {
-			s := fmt.Sprintf("  错误: %v %v %v", message.Code, message.Message, message.Type)
-			m.message.Lines().Add(s)
-			m.chatBtn.SetEnabled(true)
-			isFirstRec = false
-		})
-	})
-	lcl.RunOnMainThreadSync(func() {
-		m.message.Lines().Add("XTA - AI SDK 初始化完成")
-		m.message.Lines().Add("模型: " + m.ai.Name())
-		//m.message.Lines().Add("APIKEY: ........." + m.ai.APIKey()[5:10] + "............")
-	})
-}
-
 func (m *TMainWindow) selectFileOrDir(sender lcl.IObject) {
 	if m.selDirDlg.Execute() {
 		files := m.selDirDlg.Files()
@@ -300,28 +285,6 @@ func (m *TMainWindow) selectFileOrDir(sender lcl.IObject) {
 		})
 		win.Show()
 	}
-}
-
-func (m *TMainWindow) SendMessage(sender lcl.IObject) {
-	msg := m.chat.Lines().Text()
-	if msg != "" {
-		m.message.Lines().Add("我: " + nowDatetime())
-		m.message.Lines().Add("  " + msg)
-		buf := bytes.Buffer{}
-		buf.WriteString(msg + "\n")
-		for _, fw := range m.fileWindow {
-			buf.WriteString(fw.text.Text() + "\n")
-			buf.WriteString(strings.Join(fw.fileContent, "\n"))
-		}
-		m.sendMessage(buf.String())
-		m.chat.SetText("")
-	}
-}
-
-func (m *TMainWindow) sendMessage(content string) {
-	// 在协程里操作
-	go m.ai.ChatStream(content)
-	m.chatBtn.SetEnabled(false)
 }
 
 func nowDatetime() string {
