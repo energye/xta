@@ -61,11 +61,21 @@ func (m *TMainWindow) initMainBox() {
 
 	openURL := lcl.NewLinkLabel(m)
 	openURL.SetParent(m)
-	openURL.SetCaption(`<a href="https://ai.gitee.com/models">Gitee AI API 获取</a>`)
+	openURL.SetCaption(`<a href="https://ai.gitee.com/models"> [Gitee AI API 获取] </a>`)
 	openURL.SetAlign(types.AlRight)
 	openURL.SetTop(5)
 	openURL.Font().SetSize(12)
 	openURL.SetOnLinkClick(func(sender lcl.IObject, link string, linktype types.TSysLinkType) {
+		rtl.SysOpen(link)
+	})
+
+	open1URL := lcl.NewLinkLabel(m)
+	open1URL.SetParent(m)
+	open1URL.SetCaption(`<a href="https://github.com/energye/xta"> [XTA AI SDK] </a>`)
+	open1URL.SetAlign(types.AlRight)
+	open1URL.SetTop(5)
+	open1URL.Font().SetSize(12)
+	open1URL.SetOnLinkClick(func(sender lcl.IObject, link string, linktype types.TSysLinkType) {
 		rtl.SysOpen(link)
 	})
 
