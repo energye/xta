@@ -45,8 +45,14 @@ const (
 // Messages 消息列表
 type Messages []Message
 
+// Add 添加历史消息
 func (m *Messages) Add(message Message) {
 	*m = append(*m, message)
+}
+
+// Clear 清空历史消息
+func (m *Messages) Clear() {
+	*m = make(Messages, 0)
 }
 
 // ResponseFormat 响应格式

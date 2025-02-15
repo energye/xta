@@ -64,6 +64,7 @@ type IGiteeAI interface {
 	ChatStreamRole(content string, role Role) // 带有角色的聊天, 发送消息并以流方式返回
 	Chat(content string)                      // 发送消息并以普通方式全量返回
 	ChatStream(content string)                // 发送消息并以流方式返回
+	Options() *Options                        // 返回当前 AI 选项
 }
 
 // Value 返回模型枚举值
@@ -87,7 +88,7 @@ var DefaultGiteeAIOptions = Options{
 // GiteeAI Gitee AI 实现
 type GiteeAI struct {
 	AIBase
-	options       Options  // AI 选项
+	options       *Options // AI 选项
 	isSupportTool bool     // 是否支持工具
 	metaData      MetaData // 元数据参数
 	header        http.Header
@@ -96,13 +97,11 @@ type GiteeAI struct {
 // NewGiteeAI 创建一个 Gitee AI
 func NewGiteeAI(options Options, isSupportTool bool) IGiteeAI {
 	ai := &GiteeAI{
-		options:       options,
+		options:       &options,
 		isSupportTool: isSupportTool,
 		metaData:      DefaultGiteeAIMetaData,
 		header:        make(http.Header),
 	}
-	ai.Header().Set("Authorization", "Bearer "+ai.APIKey())
-	ai.Header().Set("Content-Type", "application/json")
 	return ai
 }
 
@@ -124,6 +123,10 @@ func (m *GiteeAI) IsSupportTool() bool {
 
 func (m *GiteeAI) APIKey() string {
 	return m.options.APIKey
+}
+
+func (m *GiteeAI) Options() *Options {
+	return m.options
 }
 
 func (m *GiteeAI) MetaData() *MetaData {
@@ -163,5 +166,7 @@ func (m *GiteeAI) Header() http.Header {
 }
 
 func (m *GiteeAI) Request() {
+	m.Header().Set("Authorization", "Bearer "+m.APIKey())
+	m.Header().Set("Content-Type", "application/json")
 	HttpPost(m)
 }
