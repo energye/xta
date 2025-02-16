@@ -44,6 +44,7 @@ func (m *TMainWindow) FormCreate(sender lcl.IObject) {
 	m.SetPosition(types.PoScreenCenter)
 	m.SetWidth(1024)
 	m.SetHeight(768)
+	m.SetShowHint(true)
 
 	m.Constraints().SetMinWidth(types.TConstraintSize(m.Width()))
 	m.Constraints().SetMinHeight(types.TConstraintSize(m.Height()))
