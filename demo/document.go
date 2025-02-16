@@ -17,6 +17,11 @@ func main() {
 	options.APIKey = os.Getenv(chat.ENV_AI_API_KEY)
 	ai := chat.NewGiteeAI(options, false)
 
+	ai.Header().Set("x-failover-enabled", "true")
+	ai.Header().Set("x-package", "1910")
+	ai.Header().Set("x-pipeline-tag", "conversational")
+	ai.Header().Set("x-trial-enabled", "true")
+
 	ai.SetOnReceive(func(message *chat.TResponse) {
 		if message != nil {
 			if message.Error != "" {
@@ -28,32 +33,30 @@ func main() {
 				}
 			}
 		} else {
-			println()
+			println("结束")
 		}
 	})
 	ai.SetOnFail(func(message *chat.TResponseError) {
 		fmt.Println("fail:", message.Code, message.Message, message.Type)
 	})
+
+	ai.System("你现在是一个文档编写专家, 根据用户要求编写文档.")
+
 	wd, _ := os.Getwd()
-	sourcePath := filepath.Join(wd, "chat")
-	demoPath := filepath.Join(wd, "demo")
+	docPath := filepath.Join(wd, "demo", "data")
 
-	sourceCode := tool.LoadSourceFile(sourcePath, false)
-	println("源码:", len(sourceCode))
-	demoCode := tool.LoadSourceFile(demoPath, false)
-	println("示例:", len(demoCode))
+	docCode := tool.LoadFile(docPath)
+	println("文档:", len(docCode))
 
-	contentBuf := bytes.Buffer{}
-	contentBuf.WriteString("你现在为这个项目编写使用说明文档，根据用户要求编写项目介绍的 README.md 文档。\n")
-	contentBuf.WriteString("\n源代码:\n")
-	contentBuf.Write(sourceCode)
-	contentBuf.WriteString("\n参考示例:\n")
-	contentBuf.Write(demoCode)
-	contentBuf.WriteString("\n")
-	println("总:", contentBuf.Len())
+	question := bytes.Buffer{}
+	question.WriteString("你现在为这个项目编写使用说明文档，根据用户要求编写项目介绍的文档。\n")
+	question.WriteString("\n参考文档:\n")
+	question.Write(docCode)
+	question.WriteString("\n")
+	println("总:", question.Len())
 
 	time.Sleep(time.Second / 2)
 
-	ai.ChatStream(contentBuf.String())
+	ai.ChatStream(question.String())
 	println()
 }

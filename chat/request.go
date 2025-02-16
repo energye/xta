@@ -37,7 +37,8 @@ func HttpPost(ai IAI) {
 		return
 	}
 	if Debug {
-		log.Println("[Debug] [XTA] - Body:", len(reqBody))
+		log.Println("[Debug] [XTA] - Request-Body-Size:", len(reqBody))
+		log.Println("[Debug] [XTA] - Request-Body-Content:", string(reqBody))
 	}
 	httpclient.Post(url, reqBody, func(header http.Header) {
 		for key, value := range ai.Header() {

@@ -116,7 +116,7 @@ var DefaultGiteeAIOptions = Options{
 
 // GiteeAI Gitee AI 实现
 type GiteeAI struct {
-	AIBase
+	AI
 	options       *Options // AI 选项
 	isSupportTool bool     // 是否支持工具
 	metaData      MetaData // 元数据参数
@@ -142,7 +142,7 @@ func (m *GiteeAI) API() string {
 	return result
 }
 
-func (m *GiteeAI) Name() string {
+func (m *GiteeAI) ModelName() string {
 	return m.MetaData().Model
 }
 
