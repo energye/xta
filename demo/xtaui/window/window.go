@@ -90,8 +90,8 @@ func (m *TMainWindow) initMainBox() {
 	modules.SetOnChange(func(sender lcl.IObject) {
 		module := chat.GiteeAIModelNameEnum(modules.Items().Strings(modules.ItemIndex()))
 		m.ai.SetModel(module)
-		m.message.Lines().Add("模型: " + m.ai.ModelName())
-		m.SetCaption(m.title + " " + m.ai.ModelName())
+		m.message.Lines().Add("模型: " + m.ai.Model())
+		m.SetCaption(m.title + " " + m.ai.Model())
 	})
 
 	apiKey := lcl.NewEditButton(m)
