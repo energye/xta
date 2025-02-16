@@ -12,7 +12,7 @@ package chat
 
 // Options 基础配置选项
 type Options struct {
-	BaseURL string
-	API     string
-	APIKey  string
+	BaseURL string // 服务商地址
+	API     string // 接口
+	APIKey  string // 秘钥
 }

@@ -1,4 +1,4 @@
 github.com/energye/lcl v1.0.0 h1:7gRWF+U6HBISo7LCr28VeiSNHsWI6CtTaxbRIPxjOaU=
 github.com/energye/lcl v1.0.0/go.mod h1:ylr4MQr/GR6afimkV5D3KbxWntz7amFvsZWP8+nwgOc=
-github.com/energye/xta v1.0.1 h1:ApRnejk6vq6mnbwg0VipgmS22DX+S4z2tLBOcepymGY=
-github.com/energye/xta v1.0.1/go.mod h1:a3+q5jVQ20RiBmtl8KdGSTBKa+xHeenRYNMWTSQWouc=
+github.com/energye/xta v1.0.2 h1:AXmipJwkvPr/V0AfC5z2eWAUkaB6QlWA84GLMsh6qd4=
+github.com/energye/xta v1.0.2/go.mod h1:a3+q5jVQ20RiBmtl8KdGSTBKa+xHeenRYNMWTSQWouc=

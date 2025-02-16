@@ -15,7 +15,7 @@ import "net/http"
 // IAI 基础接口
 type IAI interface {
 	API() string                // AI API 服务地址
-	ModelName() string          // 模型名称
+	Model() string              // 模型名称
 	APIKey() string             // 服务商 API KEY
 	IsSupportTool() bool        // 模型是否支持工具
 	MetaData() *MetaData        // 模型源数据参数

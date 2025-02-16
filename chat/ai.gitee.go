@@ -88,12 +88,11 @@ func GiteeAIModels() []string {
 type IGiteeAI interface {
 	IAI
 	SetModel(name GiteeAIModelNameEnum)       // 设置当前模型
-	Model() GiteeAIModelNameEnum              // 返回当前模型
 	ChatRole(content string, role Role)       // 带有角色的聊天, 发送消息并以普通方式全量返回
 	ChatStreamRole(content string, role Role) // 带有角色的聊天, 发送消息并以流方式返回
 	Chat(content string)                      // 发送消息并以普通方式全量返回
 	ChatStream(content string)                // 发送消息并以流方式返回
-	Options() *Options                        // 返回当前 AI 选项
+	Options() *Options                        // 返回当前选项
 }
 
 // Value 返回模型枚举值
@@ -117,7 +116,7 @@ var DefaultGiteeAIOptions = Options{
 // GiteeAI Gitee AI 实现
 type GiteeAI struct {
 	AI
-	options       *Options // AI 选项
+	options       Options  // 选项
 	isSupportTool bool     // 是否支持工具
 	metaData      MetaData // 元数据参数
 	header        http.Header
@@ -126,7 +125,7 @@ type GiteeAI struct {
 // NewGiteeAI 创建一个 Gitee AI
 func NewGiteeAI(options Options, isSupportTool bool) IGiteeAI {
 	ai := &GiteeAI{
-		options:       &options,
+		options:       options,
 		isSupportTool: isSupportTool,
 		metaData:      DefaultGiteeAIMetaData,
 		header:        make(http.Header),
@@ -135,27 +134,23 @@ func NewGiteeAI(options Options, isSupportTool bool) IGiteeAI {
 }
 
 func (m *GiteeAI) API() string {
-	result, err := url.JoinPath(m.options.BaseURL, m.options.API)
+	result, err := url.JoinPath(m.Options().BaseURL, m.Options().API)
 	if err != nil {
 		log.Println(err)
 	}
 	return result
 }
 
-func (m *GiteeAI) ModelName() string {
-	return m.MetaData().Model
+func (m *GiteeAI) APIKey() string {
+	return m.Options().APIKey
 }
 
 func (m *GiteeAI) IsSupportTool() bool {
 	return m.isSupportTool
 }
 
-func (m *GiteeAI) APIKey() string {
-	return m.options.APIKey
-}
-
 func (m *GiteeAI) Options() *Options {
-	return m.options
+	return &m.options
 }
 
 func (m *GiteeAI) MetaData() *MetaData {
@@ -166,8 +161,8 @@ func (m *GiteeAI) SetModel(name GiteeAIModelNameEnum) {
 	m.MetaData().Model = string(name)
 }
 
-func (m *GiteeAI) Model() GiteeAIModelNameEnum {
-	return GiteeAIModelNameEnum(m.MetaData().Model)
+func (m *GiteeAI) Model() string {
+	return m.MetaData().Model
 }
 
 func (m *GiteeAI) ChatRole(content string, role Role) {
@@ -195,6 +190,7 @@ func (m *GiteeAI) Header() http.Header {
 }
 
 func (m *GiteeAI) Request() {
+	// 固定请求头配置
 	m.Header().Set("Authorization", "Bearer "+m.APIKey())
 	m.Header().Set("Content-Type", "application/json")
 	HttpPost(m)
