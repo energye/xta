@@ -76,6 +76,10 @@ func (m *TMainWindow) SendMessage(sender lcl.IObject) {
 		buf := bytes.Buffer{}
 		buf.WriteString(msg + "\n")
 		for _, fw := range m.fileWindow {
+			if fw.isSend {
+				continue
+			}
+			fw.isSend = true
 			buf.WriteString(fw.text.Text() + "\n")
 			buf.WriteString(strings.Join(fw.fileContent, "\n"))
 		}

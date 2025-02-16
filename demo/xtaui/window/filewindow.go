@@ -19,6 +19,7 @@ type FileWindow struct {
 	id          string
 	fileDesc    string
 	fileContent []string
+	isSend      bool
 }
 
 func createWindow(files []string, ok func(window *FileWindow)) *FileWindow {
