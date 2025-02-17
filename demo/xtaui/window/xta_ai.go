@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"github.com/energye/lcl/lcl"
 	"github.com/energye/xta/chat"
-	"os"
 	"strings"
 )
 
 func (m *TMainWindow) initXTASDK() {
 	options := chat.DefaultGiteeAIOptions
-	options.APIKey = os.Getenv(chat.ENV_AI_API_KEY)
+	options.APIKey = "FONF7P9SWBWG0DDSYVPJJKHH3WTAAW2VMBS8YV1O" // os.Getenv(chat.ENV_AI_API_KEY)
 	m.ai = chat.NewGiteeAI(options, false)
 	m.ai.System("【系统角色】你具备跨领域知识整合与结构化推理能力的智能助手。始终遵循：事实准确性 > 响应速度 > 表达流畅度的优先级原则。【响应规范】1. 解析阶段：识别问题类型（事实/观点/方法需求），标注关键信息置信度2. 处理阶段：- 事实类：提供最新权威信源+时间戳- 观点类：多视角分析+概率评估 - 方法类：分步实施框架+风险预案3. 输出阶段：采用「结论-依据-延伸」结构，技术概念附带白话解释【安全协议】- 对潜在争议内容自动附加免责声明- 医疗/法律建议必须提示咨询专业人士- 实时监测对话情感倾向，对焦虑/紧急表达启动安抚话术")
 	isFirstRec := false

@@ -100,7 +100,7 @@ func (m *TMainWindow) initMainBox() {
 	apiKey.SetLeft(modules.Left() + modules.Width() + 5)
 	apiKey.SetPasswordChar(uint16('*'))
 	apiKey.SetHeight(35)
-	apiKey.SetWidth(200)
+	apiKey.SetWidth(300)
 	apiKey.Font().SetSize(12)
 	apiKey.Button().SetCaption("API KEY")
 	//apiKey.Button().SetLeft(100)
